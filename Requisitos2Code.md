@@ -9,19 +9,34 @@
 
 El proyecto utiliza la biblioteca de Python llamada Streamlit. Streamlit permite renderizar componentes HTML de alto nivel de manera sencilla, facilitando la creación de aplicaciones web interactivas y dinámicas.
 
+ ```python
+    st.caption('')
+    st.markdown(horizontal_bar, True)
+
+    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
+        Leaderboard('write')
+
+        if mystate.myscore > 0: st.balloons()
+        elif mystate.myscore <= 0: st.snow()
+
+        tm.sleep(5)
+        mystate.runpage = Main
+        st.rerun()
+```
 ---
 
 ### 2. OS (Sistema Operativo)
 
 Se importa esta librería para poder acceder a rutas de nuestros directorios, por ejemplo para acceder a las imágenes, archivos externos como el JSON donde se guardan los usuarios con sus respectivos puntajes. En general, es necesaria para adquirir funciones nativas del sistema operativo.
 <span style="font-size: 0.6em;">Nota: Este es un ejemplo de uso de la libreria en el proyecto.</span>
+
  ```python
-    def Leaderboard(what_to_do):
-        if what_to_do == 'create':
-            if mystate.GameDetails[3] != '':
-                if os.path.isfile(vpth + 'leaderboard.json') == False:
-                    tmpdict = {}
-                    json.dump(tmpdict, open(vpth + 'leaderboard.json', 'w'))
+    import os
+
+    # Acceder al directorio actual y listar todos los archivos JSON
+    current_directory = os.getcwd()
+    json_files = [f for f in os.listdir(current_directory) if f.endswith('.json')]
+
 ```
 
 ---
@@ -31,6 +46,7 @@ Se importa esta librería para poder acceder a rutas de nuestros directorios, po
 La biblioteca Time proporciona funciones relacionadas con el tiempo, como la obtención de la hora actual o la introducción de retardos en la ejecución del código. En este proyecto, puede ser utilizada para implementar funcionalidades basadas en el tiempo, como temporizadores o cronogramas.
 
 <span style="font-size: 0.6em;">Nota: Este es un ejemplo de uso de la libreria en el proyecto.</span>
+
  ```python
     st.caption('')
     st.markdown(horizontal_bar, True)
@@ -52,11 +68,41 @@ La biblioteca Time proporciona funciones relacionadas con el tiempo, como la obt
 
 La biblioteca Base64 se utiliza para realizar operaciones de codificación y decodificación en formato Base64. Esto puede ser útil para convertir datos binarios en una representación de texto que sea segura para su transporte a través de canales que solo admiten texto.
 
+ ```python
+    st.caption('')
+    st.markdown(horizontal_bar, True)
+
+    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
+        Leaderboard('write')
+
+        if mystate.myscore > 0: st.balloons()
+        elif mystate.myscore <= 0: st.snow()
+
+        tm.sleep(5)
+        mystate.runpage = Main
+        st.rerun()
+```
+
 ---
 
 ### 5. JSON
 
 La biblioteca JSON se utiliza para trabajar con archivos en formato JSON. En este proyecto, puede ser utilizada para leer y escribir datos en archivos JSON, lo que permite almacenar y recuperar información estructurada de forma sencilla y fácil de interpretar.
+
+ ```python
+    st.caption('')
+    st.markdown(horizontal_bar, True)
+
+    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
+        Leaderboard('write')
+
+        if mystate.myscore > 0: st.balloons()
+        elif mystate.myscore <= 0: st.snow()
+
+        tm.sleep(5)
+        mystate.runpage = Main
+        st.rerun()
+```
 
 ---
 

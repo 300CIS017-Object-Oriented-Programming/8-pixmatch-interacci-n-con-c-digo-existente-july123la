@@ -48,6 +48,9 @@ purple_btn_colour = """
                     """
 
 mystate = st.session_state
+# Configuración de Errores para terminar el juego
+if "errors" not in mystate:
+    mystate.errors = 0
 if "expired_cells" not in mystate: mystate.expired_cells = []
 if "myscore" not in mystate: mystate.myscore = 0
 if "plyrbtns" not in mystate: mystate.plyrbtns = {}
@@ -64,25 +67,49 @@ def ReduceGapFromPageTop(wch_section = 'main page'):
         st.markdown(" <style> div[class^='st-emotion-cache-10oheav'] { padding-top: 0rem; } </style> ", True) # sidebar
     
 def Leaderboard(what_to_do):
+    """
+    Gestiona las operaciones del tablero de líderes como crear, escribir y leer los datos del jugador.
+    
+    Args:
+    what_to_do (str): Define la operación a realizar con el tablero de líderes ('create', 'write', 'read').
+    """
     if what_to_do == 'create':
-        if mystate.GameDetails[3] != '':
-            if os.path.isfile(vpth + 'leaderboard.json') == False:
-                tmpdict = {}
-                json.dump(tmpdict, open(vpth + 'leaderboard.json', 'w'))     # write file
+        if mystate.GameDetails[3] != '' and not os.path.isfile(vpth + 'leaderboard.json'):
+            json.dump({}, open(vpth + 'leaderboard.json', 'w'))
 
     elif what_to_do == 'write':
-        if mystate.GameDetails[3] != '':       # record in leaderboard only if player name is provided
-            if os.path.isfile(vpth + 'leaderboard.json'):
-                leaderboard = json.load(open(vpth + 'leaderboard.json'))    # read file
-                leaderboard_dict_lngth = len(leaderboard)
-                    
-                leaderboard[str(leaderboard_dict_lngth + 1)] = {'NameCountry': mystate.GameDetails[3], 'HighestScore': mystate.myscore}
-                leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # sort desc
+        if mystate.GameDetails[3] != '' and os.path.isfile(vpth + 'leaderboard.json'):
+            leaderboard = json.load(open(vpth + 'leaderboard.json'))
+            leaderboard[str(len(leaderboard) + 1)] = {'NameCountry': mystate.GameDetails[3], 'HighestScore': mystate.myscore}
+            # Ordenar el leaderboard por HighestScore de forma descendente
+            leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))
 
-                if len(leaderboard) > 3:
-                    for i in range(len(leaderboard)-3): leaderboard.popitem()    # rmv last kdict ey
+            # Mantener solo los top 4 jugadores en el leaderboard
+            if len(leaderboard) > 4:
+                while len(leaderboard) > 4:
+                    leaderboard.popitem()  # Elimina el último elemento
 
-                json.dump(leaderboard, open(vpth + 'leaderboard.json', 'w'))     # write file
+            json.dump(leaderboard, open(vpth + 'leaderboard.json', 'w'))  # Escribir el leaderboard actualizado en el archivo JSON
+
+    elif what_to_do == 'read':
+        if os.path.isfile(vpth + 'leaderboard.json'):
+            leaderboard = json.load(open(vpth + 'leaderboard.json'))
+            leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))
+
+            # Establecer columnas para mostrar los jugadores
+            sc0, sc1, sc2, sc3, sc4 = st.columns((2,3,3,3, 3))
+            rank = 0
+            sc0.write('🏆 Past Winners:')
+            for vkey in leaderboard.keys():
+                rank += 1
+                if rank == 1:
+                    sc1.write(f"🥇 | {leaderboard[vkey]['NameCountry']}: {leaderboard[vkey]['HighestScore']}")
+                elif rank == 2:
+                    sc2.write(f"🥈 | {leaderboard[vkey]['NameCountry']}: {leaderboard[vkey]['HighestScore']}")
+                elif rank == 3:
+                    sc3.write(f"🥉 | {leaderboard[vkey]['NameCountry']}: {leaderboard[vkey]['HighestScore']}")
+                elif rank == 4:
+                    sc4.write(f"🏅 | {leaderboard[vkey]['NameCountry']}: {leaderboard[vkey]['HighestScore']}")
 
     elif what_to_do == 'read':
         if mystate.GameDetails[3] != '':       # record in leaderboard only if player name is provided
@@ -144,6 +171,19 @@ def ReadPictureFile(wch_fl):
 
     except: return ""
 
+
+def reset_game():
+    """Reinicia el juego limpiando el tablero y restableciendo las variables de estado."""
+    mystate.expired_cells.clear()
+    mystate.errors = 0
+    mystate.myscore = 0
+    for key in mystate.plyrbtns.keys():
+        mystate.plyrbtns[key]['isPressed'] = False
+        mystate.plyrbtns[key]['isTrueFalse'] = False
+    PreNewGame()  # Recargar los datos iniciales del juego
+    st.experimental_rerun()  # Recargar la página
+
+    
 def PressedCheck(vcell):
     if mystate.plyrbtns[vcell]['isPressed'] == False:
         mystate.plyrbtns[vcell]['isPressed'] = True
@@ -160,6 +200,16 @@ def PressedCheck(vcell):
         else:
             mystate.plyrbtns[vcell]['isTrueFalse'] = False
             mystate.myscore -= 1
+            mystate.errors += 1  # Incrementar contador de errores
+
+        # Calcular el porcentaje de errores
+        total_presses = len(mystate.expired_cells)
+        error_percentage = (mystate.errors / total_presses) * 100
+
+        if error_percentage >= 51:
+            st.error("Game Over: Más del 51% de errores. El juego ha terminado.")
+            st.button("Reiniciar Juego", on_click=reset_game)  # Botón para reiniciar el juego
+
 
 def ResetBoard():
     # Reinicia el valor de la variable mystate, crea un nuevo tablero con emojis aleatorios y datos vacios para llenar durante la partida
