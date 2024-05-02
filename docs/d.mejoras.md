@@ -45,3 +45,90 @@ Detalla en este markdown lo siguiente:
 - **Métodos Importantes:** Enumera los métodos principales para cada clase. Incluye una descripción de cuál sería la utilidad de cada método
 - **Imagen del UML del diagrama de clases**  Adjunta una imagen del UML del diagrama de clases como una forma visual de planificar y entender la estructura de las clases, métodos, atributos y relaciones que podría tener una versión mejorada del código fuente.
 - **Organización de archivos:** Propon una estructura de organización de los archivos de este proyecto para que no queden todos en la raiz principal. Investiga cuáles podrían ser buenas formas de organizar los directorios y a partir de tu investigación indica qué directorios crearías y cómo los organizarías. 
+
+Algunas clases pueden ser de mucha ayuda para redefinir el proyecto algunas podrian ser, Board, Jugador, Dificultad
+
+# Diseño de Clases para el Proyecto PixMatch
+
+Este diseño de clases propone una estructura organizada y modular para el juego PixMatch, facilitando su mantenimiento y escalabilidad. Las clases principales son `Difficulty`, `Player`, y `Board`.
+
+## Clase `Difficulty`
+
+Esta clase define los diferentes niveles de dificultad del juego, los cuales afectan parámetros como el intervalo de tiempo entre acciones automáticas y el tamaño del tablero.
+
+```python
+class Difficulty:
+    def __init__(self, level):
+        self.level = level  # 'Easy', 'Medium', 'Hard'
+        self.settings = {
+            'Easy': {'time_interval': 8, 'board_size': 6, 'score_increment': 5},
+            'Medium': {'time_interval': 6, 'board_size': 7, 'score_increment': 3},
+            'Hard': {'time_interval': 5, 'board_size': 8, 'score_increment': 1}
+        }
+
+    def time_interval(self):
+        """ Retorna el intervalo de tiempo basado en la dificultad. """
+        return self.settings[self.level]['time_interval']
+
+    def board_size(self):
+        """ Retorna el tamaño del tablero basado en la dificultad. """
+        return self.settings[self.level]['board_size']
+
+    def score_increment(self):
+        """ Retorna el incremento de puntuación para cálculos de puntaje. """
+        return self.settings[self.level]['score_increment']
+```
+
+## Clase `Player`
+
+Maneja la información del jugador incluyendo su nombre, país y puntaje actual.
+
+```python
+class Player:
+    def __init__(self, name, country):
+        self.name = name
+        self.country = country
+        self.score = 0
+
+    def update_score(self, points):
+        """ Actualiza el puntaje del jugador sumando los puntos especificados. """
+        self.score += points
+
+    def reset_score(self):
+        """ Reinicia el puntaje del jugador a cero. """
+        self.score = 0
+
+    def display_details(self):
+        """ Retorna los detalles del jugador en formato de cadena. """
+        return f"{self.name}, {self.country}: {self.score}"
+
+```
+
+# Clase `Board`
+
+Gestiona el estado y la lógica del tablero de juego, incluyendo las celdas y sus estados.
+
+```python
+class Board:
+    def __init__(self, difficulty):
+        self.size = difficulty.board_size()
+        self.cells = {}
+        self.reset_board()
+
+    def reset_board(self):
+        """ Reinicia el tablero llenando todas las celdas con valores iniciales y asignando emojis aleatorios. """
+        self.cells = {i: {'emoji': None, 'isPressed': False, 'isCorrect': False} for i in range(1, self.size**2 + 1)}
+        self.populate_emojis()
+
+    def populate_emojis(self):
+        """ Asigna emojis aleatoriamente a las celdas del tablero. """
+        emojis = ['😃', '😄', '😁', ...]  # Lista completa de emojis usada para el juego
+        random.shuffle(emojis)
+        for i in range(1, self.size**2 + 1):
+            self.cells[i]['emoji'] = emojis[i % len(emojis)]  # Asigna emojis de manera cíclica
+
+
+```
+
+
+Estas son algunas de las clases planteadas para mejorar la implementacion del proyecto, durante su desarrollo es posible que existan nuevos problemas que serían solucionados con la creación de nuevas clases, por lo que este documento podria cambiar.
