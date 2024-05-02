@@ -204,9 +204,12 @@ def PressedCheck(vcell):
 
         # Calcular el porcentaje de errores
         total_presses = len(mystate.expired_cells)
-        error_percentage = (mystate.errors / total_presses) * 100
+        total_errors = 0
+        if mystate.GameDetails[0]=='Medium': total_errors = 25
+        elif mystate.GameDetails[0]=='Hard': total_errors = 33
+        else: total_errors = 19
 
-        if error_percentage >= 51:
+        if mystate.errors >= total_errors:
             st.error("Game Over: Más del 51% de errores. El juego ha terminado.")
             st.button("Reiniciar Juego", on_click=reset_game)  # Botón para reiniciar el juego
 
